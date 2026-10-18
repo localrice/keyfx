@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -11,7 +12,12 @@ import (
 	"github.com/gopxl/beep/mp3"
 	"github.com/gopxl/beep/speaker"
 	"github.com/holoplot/go-evdev"
+	"gopkg.in/yaml.v2"
 )
+
+type Config struct {
+	Sound string `yaml:"sound"`
+}
 
 func main() {
 	if err := runDaemon(); err != nil {
@@ -107,4 +113,27 @@ func keyboardEvents() (<-chan struct{}, error) {
 	}
 
 	return keys, nil
+}
+
+func loadConfig() (Config, error) {
+	var cfg Config
+
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return cfg, err
+	}
+
+	configPath := filepath.Join(configDir, "keyfx", "config.yaml")
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return cfg, err
+	}
+
+	err = yaml.Unmarshal(data, &cfg)
+	if err != nil {
+		return cfg, err
+	}
+
+	return cfg, nil
 }
