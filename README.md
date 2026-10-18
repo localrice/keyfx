@@ -1,5 +1,9 @@
 # KeyFX
 
+<p align="center">
+    <img src="./docs/images/keyfx.png" alt="mefetch" border="0">
+</p>
+
 Keyboard FX
 
 play any sound on key presses.
