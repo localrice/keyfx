@@ -21,30 +21,9 @@ type Config struct {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: keyfx <on|off|daemon>")
-		os.Exit(1)
+	if err := runDaemon(); err != nil {
+		log.Fatal(err)
 	}
-
-	switch os.Args[1] {
-	case "on":
-		//start systemd service
-	case "off":
-		// stop systemd service
-	case "config":
-		// future use: config tui pannel
-	case "daemon":
-		if err := runDaemon(); err != nil {
-			log.Fatal(err)
-		}
-	default:
-		fmt.Println("Unknown command:", os.Args[1])
-		os.Exit(1)
-	}
-
-	// if err := runDaemon(); err != nil {
-	// 	log.Fatal(err)
-	// }
 }
 
 func runDaemon() error {
