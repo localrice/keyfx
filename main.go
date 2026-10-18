@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 	"time"
@@ -119,24 +120,29 @@ func keyboardEvents() (<-chan struct{}, error) {
 	return keys, nil
 }
 
-func loadConfig() (Config, error) {
-	var cfg Config
-
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		return cfg, err
+func loadConfig() (*Config, error) {
+	home := os.Getenv("HOME")
+	fmt.Println(home)
+	sudoUser := os.Getenv("SUDO_USER")
+	fmt.Println(sudoUser)
+	if sudoUser != "" {
+		u, err := user.Lookup(sudoUser)
+		if err != nil {
+			return nil, err
+		}
+		home = u.HomeDir
 	}
-
-	configPath := filepath.Join(configDir, "keyfx", "config.yaml")
+	fmt.Println(home)
+	configPath := filepath.Join(home, ".config", "keyfx", "config.yaml")
 
 	data, err := os.ReadFile(configPath)
 	if err != nil {
-		return cfg, err
+		return nil, err
 	}
 
-	err = yaml.Unmarshal(data, &cfg)
-	if err != nil {
-		return cfg, err
+	cfg := &Config{}
+	if err := yaml.Unmarshal(data, cfg); err != nil {
+		return nil, err
 	}
 
 	return cfg, nil
