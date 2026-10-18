@@ -26,14 +26,18 @@ func main() {
 }
 
 func runDaemon() error {
-	const soundFile = "gun_shot.mp3"
+	// const soundFile = "gun_shot.mp3"
+	config, err := loadConfig()
+	if err != nil {
+		return err
+	}
 
 	keys, err := keyboardEvents()
 	if err != nil {
 		return err
 	}
 
-	f, err := os.Open(soundFile)
+	f, err := os.Open(config.Sound)
 	if err != nil {
 		return err
 	}
