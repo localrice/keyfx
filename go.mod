@@ -5,6 +5,7 @@ go 1.26.8
 require (
 	github.com/gopxl/beep v1.4.1
 	github.com/holoplot/go-evdev v0.0.0-20260909133534-d873ed210bda
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
