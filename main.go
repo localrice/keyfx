@@ -14,25 +14,32 @@ import (
 )
 
 func main() {
+	if err := runDaemon(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func runDaemon() error {
 	const soundFile = "gun_shot.mp3"
 
 	keys, err := keyboardEvents()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	f, err := os.Open(soundFile)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	streamer, format, err := mp3.Decode(f)
 	if err != nil {
-		log.Fatal(err)
+		f.Close()
+		return err
 	}
 	buffer := beep.NewBuffer(format)
 	buffer.Append(streamer)
-	fmt.Println("Buffer length:", buffer.Len())
+
 	streamer.Close()
 	f.Close()
 
@@ -40,12 +47,11 @@ func main() {
 	// speaker.PlayAndWait(streamer)
 	// speaker.PlayAndWait(buffer.Streamer(0, buffer.Len()))
 
+	// play sound from the keys channel provided by keyboardEvents
 	for range keys {
-		fmt.Println("key press")
-		// speaker.Play(beep.Clone(streamer))
 		speaker.Play(buffer.Streamer(0, buffer.Len()))
 	}
-
+	return nil
 }
 
 func keyboardEvents() (<-chan struct{}, error) {
@@ -54,6 +60,8 @@ func keyboardEvents() (<-chan struct{}, error) {
 		return nil, err
 	}
 
+	// send an empty struct as a signal that a key was pressed
+	// in the future, maybe send the key information to signify which key was pressed
 	keys := make(chan struct{})
 
 	var found bool
@@ -82,6 +90,10 @@ func keyboardEvents() (<-chan struct{}, error) {
 					return
 				}
 
+				//EV_KEY with values:
+				//	0 - key released
+				//	1 - key pressed
+				//	2 - key held
 				if event.Type == evdev.EV_KEY && event.Value == 1 {
 					keys <- struct{}{}
 				}
