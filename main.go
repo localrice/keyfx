@@ -81,7 +81,7 @@ func keyboardEvents() (<-chan struct{}, error) {
 
 		found = true
 
-		go func() {
+		go func(dev *evdev.InputDevice) {
 			defer dev.Close()
 
 			for {
@@ -98,7 +98,7 @@ func keyboardEvents() (<-chan struct{}, error) {
 					keys <- struct{}{}
 				}
 			}
-		}()
+		}(dev)
 	}
 
 	if !found {
