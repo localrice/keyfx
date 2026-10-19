@@ -3,21 +3,24 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/gopxl/beep"
-	"github.com/gopxl/beep/mp3"
-	"github.com/gopxl/beep/speaker"
+	"github.com/gopxl/beep/v2"
+	"github.com/gopxl/beep/v2/effects"
+	"github.com/gopxl/beep/v2/mp3"
+	"github.com/gopxl/beep/v2/speaker"
 	"github.com/holoplot/go-evdev"
 	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	Sound string `yaml:"sound"`
+	Sound  string `yaml:"sound"`
+	Volume int    `yaml:"volume"`
 }
 
 func main() {
@@ -48,8 +51,17 @@ func runDaemon() error {
 		f.Close()
 		return err
 	}
+
+	volume := float64(config.Volume) / 100.0
+
+	volumeStreamer := &effects.Volume{
+		Streamer: streamer,
+		Base:     2,
+		Volume:   math.Log(volume),
+	}
+
 	buffer := beep.NewBuffer(format)
-	buffer.Append(streamer)
+	buffer.Append(volumeStreamer)
 
 	streamer.Close()
 	f.Close()
@@ -143,6 +155,14 @@ func loadConfig() (*Config, error) {
 	cfg := &Config{}
 	if err := yaml.Unmarshal(data, cfg); err != nil {
 		return nil, err
+	}
+
+	if strings.TrimSpace(cfg.Sound) == "" {
+		return nil, fmt.Errorf("sound must be specified in config")
+	}
+
+	if cfg.Volume < 1 || cfg.Volume > 100 {
+		return nil, fmt.Errorf("volume must be between 1 and 100")
 	}
 
 	return cfg, nil
