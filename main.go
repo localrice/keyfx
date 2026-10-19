@@ -24,6 +24,7 @@ type Config struct {
 }
 
 func main() {
+	fmt.Println("good luck annoying your coworkers with this :D")
 	if err := runDaemon(); err != nil {
 		log.Fatal(err)
 	}
@@ -139,9 +140,7 @@ func keyboardEvents() (<-chan struct{}, error) {
 
 func loadConfig() (*Config, error) {
 	home := os.Getenv("HOME")
-	fmt.Println(home)
 	sudoUser := os.Getenv("SUDO_USER")
-	fmt.Println(sudoUser)
 	if sudoUser != "" {
 		u, err := user.Lookup(sudoUser)
 		if err != nil {
@@ -149,7 +148,6 @@ func loadConfig() (*Config, error) {
 		}
 		home = u.HomeDir
 	}
-	fmt.Println(home)
 	configPath := filepath.Join(home, ".config", "keyfx", "config.yaml")
 
 	data, err := os.ReadFile(configPath)
