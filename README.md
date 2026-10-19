@@ -24,6 +24,8 @@ sudo install -Dm755 keyfx /usr/local/bin/keyfx
 Create the configuration file at `~/.config/keyfx/config.yaml`:
 ```yaml
 sound: "/absolute/path/to/your/sound.mp3"
+# Sound volume: 1–100
+volume: 30
 ```
 Replace the example path with the absolute path to your sound file.
 
