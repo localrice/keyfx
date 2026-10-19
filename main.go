@@ -102,6 +102,11 @@ func keyboardEvents() (<-chan struct{}, error) {
 			continue
 		}
 
+		if !isKeyboard(dev) {
+			dev.Close()
+			continue
+		}
+
 		found = true
 
 		go func(dev *evdev.InputDevice) {
@@ -166,4 +171,31 @@ func loadConfig() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func isKeyboard(dev *evdev.InputDevice) bool {
+	supported := make(map[evdev.EvCode]bool)
+	// extract all the supported key codes from the device
+	for _, code := range dev.CapableEvents(evdev.EV_KEY) {
+		supported[code] = true
+	}
+	// required keys for a keyboard ( random set)
+	requiredKeys := []string{
+		"KEY_A",
+		"KEY_Z",
+		"KEY_ENTER",
+		"KEY_SPACE",
+		"KEY_1",
+		"KEY_0",
+	}
+
+	// check if all required keys are supported by the device
+	for _, name := range requiredKeys {
+		code, ok := evdev.KEYFromString[name]
+		if !ok || !supported[code] {
+			return false
+		}
+	}
+
+	return true
 }
