@@ -52,13 +52,13 @@ func runDaemon() error {
 		f.Close()
 		return err
 	}
-
+	// beep volume supports a value from 0.0 to 1.0
 	volume := float64(config.Volume) / 100.0
 
 	volumeStreamer := &effects.Volume{
 		Streamer: streamer,
 		Base:     2,
-		Volume:   math.Log(volume),
+		Volume:   math.Log2(volume), // convert linear volume to logarithmic scale, beep library uses logarithmic scale for volume control
 	}
 
 	buffer := beep.NewBuffer(format)
